@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import Swal from 'sweetalert2'
 import { connect } from 'react-redux'
+import { addStudentAction, findStudentAction, updateStudentAction } from '../../redux/actions/StudentsReducerAction'
 
 class RegisterForm extends Component {
     state = {
@@ -16,6 +17,7 @@ class RegisterForm extends Component {
             phone: '',
             email: '',
         },
+        key: ''
     }
 
     handleOnchange = (e) => {
@@ -110,38 +112,103 @@ class RegisterForm extends Component {
         }
 
         // Add students
-        const action = {
-            type: 'ADD_STUDENT',
-            payload: this.state.values
-        }
-        this.props.dispatch(action)
+        this.props.dispatch(addStudentAction(this.state.values))
         document.getElementById('form').reset()
-
-    }
-
-    // static getDerivedStateFromProps(newProps, currentState) {
-    //     if (currentState.values.id !== newProps.studentsEdit.id) {
-    //         // = this.setState()
-
-    //         return {
-    //             values: newProps.studentsEdit
-    //         }
-    //     }
-    //     return null
-    // }
-
-    componentWillReceiveProps(newProps) {
         this.setState({
-            values: newProps.studentsEdit,
+            values: {
+                id: '',
+                name: '',
+                phone: '',
+                email: '',
+            }
         })
-        document.getElementById('id').disabled = true;
+
+        
 
     }
+
+    handleUpdateStudent = (e) => {
+        e.preventDefault()
+        let isValid = true
+
+        // Check value
+        for (let keyValue in this.state.values) {
+            if (this.state.values[keyValue] === '') {
+                isValid = false
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Thông tin chưa hợp lệ',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    timer: 1000
+                })
+                return
+            }
+        }
+
+        // Check error
+        for (let keyError in this.state.errors) {
+            if (this.state.errors[keyError] !== '') {
+                isValid = false
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Thông tin chưa hợp lệ',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    timer: 1000
+                })
+                return
+            }
+        }
+
+        if (isValid) {
+            this.props.dispatch(updateStudentAction(this.state.values))
+            this.setState({
+                values: {
+                    id: '',
+                    name: '',
+                    phone: '',
+                    email: '',
+                }
+            })
+            document.getElementById('form').reset()
+            document.getElementById('id').disabled = false;
+
+            Swal.fire({
+                title: 'Success!',
+                text: 'Cập Nhật Thành Công',
+                icon: 'success',
+                confirmButtonText: 'OK',
+                timer: 1000
+            })
+        }
+        document.getElementById('add').style.display = 'block';
+        document.getElementById('update').style.display = 'none';
+        document.getElementById('delete').style.pointerEvents = 'auto';
+
+
+    }
+
+    handleSearchStudent = (e) => {
+        const {value} = e.target
+        this.props.dispatch(findStudentAction(value))
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (prevProps.studentsEdit.id !== this.props.studentsEdit.id) {
+            this.setState({
+                values: this.props.studentsEdit
+            })
+        }
+    }
+
+
 
 
 
     render() {
         const { id, name, phone, email } = this.state.values
+        // const { id, name, phone, email } = this.props.studentsEdit
 
         return (
             <div className='container'>
@@ -176,72 +243,18 @@ class RegisterForm extends Component {
                                 </div>
                             </div>
                             <div className="row">
-                                <div className="col-md-6 text-center">
-                                    <button style={{ width: 150 }} className="btn btn-success mr-5">Thêm Nhân Viên</button>
-                                    <button style={{ width: 150 }} className="btn btn-success" onClick={(e) => {
-                                        e.preventDefault()
-                                        let isValid = true
+                                <div className="col-md-3 text-center">
+                                    <button id='add' style={{ width: 150 }} className="btn btn-success mr-5">Thêm Nhân Viên</button>
+                                </div>
+                                <div className="col-3">
+                                    <button id='update' style={{ width: 150, display:'none'}} className="btn btn-success" onClick={this.handleUpdateStudent}>Cập Nhật</button>
 
-                                        // Check value
-                                        for (let keyValue in this.state.values) {
-                                            if (this.state.values[keyValue] === '') {
-                                                isValid = false
-                                                Swal.fire({
-                                                    title: 'Error!',
-                                                    text: 'Thông tin chưa hợp lệ',
-                                                    icon: 'error',
-                                                    confirmButtonText: 'OK',
-                                                    timer: 1000
-                                                })
-                                                return
-                                            }
-                                        }
-
-                                        // Check error
-                                        for (let keyError in this.state.errors) {
-                                            if (this.state.errors[keyError] !== '') {
-                                                isValid = false
-                                                Swal.fire({
-                                                    title: 'Error!',
-                                                    text: 'Thông tin chưa hợp lệ',
-                                                    icon: 'error',
-                                                    confirmButtonText: 'OK',
-                                                    timer: 1000
-                                                })
-                                                return
-                                            }
-                                        }
-
-                                        if (isValid) {
-                                            Swal.fire({
-                                                title: 'Success!',
-                                                text: 'Cập Nhật Thành Công',
-                                                icon: 'success',
-                                                confirmButtonText: 'OK',
-                                                timer: 1000
-                                            })
-                                            document.getElementById('form').reset()
-                                        }
-                                
-                                        this.props.dispatch({
-                                            type: 'UPDATE_STUDENT',
-                                            payload: this.state.values,
-                                        })
-                                    }}>Cập Nhật</button>
                                 </div>
                                 <div className="col-6">
                                     <div className="input-group">
-                                        <input type="text" className="form-control" />
+                                        <input placeholder='Nhập tên Sinh Viên cần tìm'  type="text" className="form-control"  onChange={this.handleSearchStudent}/>
                                         <div className="input-group-append">
-                                            <button className="input-group-text"
-                                            // onClick={(e) => {
-                                            //     e.preventDefault()
-                                            //     this.props.dispatch({
-                                            //         type: 'FIND_STUDENT',
-                                            //         payload: this.state.values
-                                            //     })
-                                            // }}
-                                            >Search</button>
+                                            <button className="input-group-text" >Search</button>
                                         </div>
                                     </div>
                                 </div>
@@ -261,20 +274,5 @@ const mapStateToProps = state => {
     }
 }
 
-// const mapDispatchToProps = dispatch => {
-//     return {
-//         updateStudent: (user) => {
-//             const action = {
-//                 type: 'UPDATE_STUDENT',
-//                 payload: user
-//             }
-//             dispatch(action)
-//             document.getElementById('form').reset()
-//         },
 
-//     }
-// }
-
-
-
-export default connect(mapStateToProps,)(RegisterForm)
+export default connect(mapStateToProps)(RegisterForm)

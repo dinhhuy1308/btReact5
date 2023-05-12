@@ -1,11 +1,23 @@
 import React, { Component } from 'react'
-import Swal from 'sweetalert2'
 import { connect } from 'react-redux'
+// import { DELETE_STUDENT } from '../../redux/type/StudentsReducerType';
+import { deleteStudentAction, editStudentAction } from '../../redux/actions/StudentsReducerAction';
 
 class UserTable extends Component {
     renderSinhVien = () => {
-        const { studentsArr } = this.props
-        return studentsArr.map((item, index) => {
+        const { studentsArr, findStudentsArr, keyWord } = this.props;
+
+        let showArr = [];
+
+        if (keyWord !== '') {
+            showArr = findStudentsArr
+        } else {
+            showArr = studentsArr
+        }
+        
+        return showArr.map((item, index) => {
+            
+            
             return (
                 <tr key={index} className='text-center'>
                     <td>{item.id}</td>
@@ -13,24 +25,18 @@ class UserTable extends Component {
                     <td>{item.phone}</td>
                     <td>{item.email}</td>
                     <td >
-                        <button onClick={() => {
-                            const action = {
-                                type: 'EDIT_STUDENT',
-                                payload: item
-                            }
-                            this.props.dispatch(action)
-                            
+                        <button id='edit' onClick={() => {
+                            this.props.dispatch(editStudentAction(item))
+                            document.getElementById('id').disabled = true;
+                            document.getElementById('add').style.display = 'none';
+                            document.getElementById('update').style.display = 'block';
+
                         }} style={{ width: 70 }} className="btn btn-success ">
                             Sửa
                         </button>
-                        <button onClick={() => {
-                            const action = {
-                                type: 'DELETE_STUDENT',
-                                payload: item.id
-                            }
-                            this.props.dispatch(action)
-                            
-                        }} style={{ width: 70 }} className="btn btn-danger mx-3">
+                        <button id='delete' onClick={() => {
+                            this.props.dispatch(deleteStudentAction(item.id))
+                        }} style={{ width: 70}} className="btn btn-danger mx-3">
                             Xóa
                         </button>
 
@@ -65,27 +71,11 @@ class UserTable extends Component {
 
 const mapStateToProps = state => {
     return {
-        studentsArr: state.StudentsReducer.studentsArr
+        studentsArr: state.StudentsReducer.studentsArr,
+        findStudentsArr: state.StudentsReducer.findStudentsArr,
+        keyWord: state.StudentsReducer.keyWord,
     }
 }
 
-// const mapDispatchToProps = dispatch => {
-//     return {
-//         deleteStudents: (id) => {
-//             const action = {
-//                 type: 'DELETE_STUDENT',
-//                 payload: id
-//             }
-//             dispatch(action)
-//         },
-//         editStudents: (user) => {
-//             const action = {
-//                 type: 'EDIT_STUDENT',
-//                 payload: user
-//             }
-//             dispatch(action)
-//         }
-//     }
-// }
 
-export default connect(mapStateToProps, )(UserTable)
+export default connect(mapStateToProps,)(UserTable)
