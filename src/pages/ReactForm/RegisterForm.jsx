@@ -41,6 +41,7 @@ class RegisterForm extends Component {
             }
         }
 
+
         // Check phone
         if (id === 'phone') {
             const regexPhone = /^[0-9]+$/
@@ -49,12 +50,20 @@ class RegisterForm extends Component {
             }
         }
 
+        if (value.trim() === '') {
+            messageError = name + ' không được để trống !!!'
+        }
+
         // Check email
         if (id === 'email') {
             const regexEmail = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
             if (!regexEmail.test(value)) {
                 messageError = name + ' không hợp lệ'
             }
+        }
+
+        if (value.trim() === '') {
+            messageError = name + ' không được để trống !!!'
         }
 
         newError[id] = messageError
@@ -244,7 +253,7 @@ class RegisterForm extends Component {
                             </div>
                             <div className="row">
                                 <div className="col-md-3 text-center">
-                                    <button id='add' style={{ width: 150 }} className="btn btn-success mr-5">Thêm Nhân Viên</button>
+                                    <button id='add' style={{ width: 150 }} className="btn btn-success mr-5">Thêm Sinh Viên</button>
                                 </div>
                                 <div className="col-3">
                                     <button id='update' style={{ width: 150, display:'none'}} className="btn btn-success" onClick={this.handleUpdateStudent}>Cập Nhật</button>
