@@ -26,9 +26,6 @@ const StudentsReducer = (state = stateDefault, action) => {
         }
         case 'EDIT_STUDENT': {
             state.studentsEdit = action.payload
-            
-
-
             return { ...state }
         }
         case 'UPDATE_STUDENT': {
@@ -38,7 +35,7 @@ const StudentsReducer = (state = stateDefault, action) => {
                 newStudentArr[index] = action.payload
             }
             state.studentsArr = newStudentArr
-
+            state.studentsEdit = {}
 
             return { ...state }
         }
